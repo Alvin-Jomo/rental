@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}House Details{% endblock %}
+
+{% block content %}
+<h1 style="text-align: center; color: #343a40; font-size: 2.5em; margin-bottom: 20px;">House Details</h1>
+<div class="house-detail" style="background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); width: 80%; margin: 0 auto; text-align: center;">
+    <img src="{{ house.image.url }}" alt="House Image" class="zoom" style="max-width: 100%; border-radius: 10px; margin-bottom: 20px;">
+    <h4>House Name: <Span style="color: brown; font-weight: bold;">{{ house.name }}</Span></h4>
+    <p style="color: #495057; font-size: 1.2em; margin-bottom: 20px;">{{ house.get_category_display }} - {{ house.description }}</p>
+</div>
+
+<!-- Additional Images Section -->
+<h2 style="text-align: center; color: #343a40; font-size: 2em; margin-top: 40px;">Explore The Interior Of The House Images</h2>
+<div class="additional-images" style="display: flex; flex-wrap: wrap; justify-content: center; margin-top: 20px;">
+    {% for image in house.additional_images.all %}
+        <div class="zoom-container" style="margin: 10px; overflow: hidden; border-radius: 10px;">
+            <img src="{{ image.image.url }}" alt="Additional House Image" class="zoom" style="max-width: 100%; border-radius: 10px; transition: transform 0.3s ease;">
+        </div>
+    {% endfor %}
+</div>
+
+<style>
+    .zoom-container:hover .zoom {
+        transform: scale(1.1);
+    }
+</style>
+
+<script>
+    document.querySelectorAll('.zoom').forEach(img => {
+        img.addEventListener('mouseover', () => {
+            img.style.transform = 'scale(1.1)';
+        });
+        img.addEventListener('mouseout', () => {
+            img.style.transform = 'scale(1)';
+        });
+    });
+</script>
+
+{% endblock %}

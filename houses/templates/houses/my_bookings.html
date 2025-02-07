@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block title %}My Bookings{% endblock %}
+
+{% block content %}
+<h1 style="text-align: center; color: #343a40; font-size: 2.5em; margin-bottom: 20px;">My Bookings</h1>
+<div class="bookings-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; max-width: 1200px; margin: 0 auto;">
+    {% for booking in bookings %}
+        <div class="booking-card" style="background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
+            <img src="{{ booking.house.image.url }}" alt="House Image" style="width: 100%; border-radius: 10px; margin-bottom: 15px;">
+            <p style="color: #495057; font-size: 1.2em; margin-bottom: 10px;"><strong>House:</strong> {{ booking.house.name }}</p>
+            <p style="color: #495057; font-size: 1em; margin-bottom: 10px;"><strong>Category:</strong> {{ booking.house.get_category_display }}</p>
+            <p style="color: #495057; font-size: 1em; margin-bottom: 10px;"><strong>Description:</strong> {{ booking.house.description }}</p>
+            <p style="color: #495057; font-size: 1em; margin-bottom: 10px;"><strong>Date Booked:</strong> {{ booking.date_created|date:"M d, Y" }}</p>
+            <div style="text-align: right; margin-top: 15px;">
+                <a href="{% url 'view_invoice' booking.id %}" style="background: #007BFF; color: #fff; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block; transition: background 0.3s ease;">View Invoice</a>
+            </div>
+        </div>
+    {% empty %}
+        <p style="text-align: center; color: #6c757d; font-size: 1.2em;">You have no bookings at the moment.</p>
+    {% endfor %}
+</div>
+{% endblock %}

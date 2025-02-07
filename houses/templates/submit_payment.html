@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1 style="text-align: center; color: #343a40; font-size: 2.5em; margin-bottom: 20px;">Submit Payment</h1>
+   
+    <p id="message" style="text-align: center; color: red; font-weight: bold;"></p>
+
+    <div class="payment-form" style="max-width: 600px; margin: 0 auto; padding: 20px; background: #f8f9fa; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
+        <form id="payment-form" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <label style="color: #495057; font-weight: bold;">Name:</label>
+            <input type="text" name="name" value="{{ latest_booking.user.username }}" readonly style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ced4da; border-radius: 5px;">
+
+            <label style="color: #495057; font-weight: bold;">Room Number:</label>
+            <input type="text" name="room_no" value="{{ latest_booking.room_no }}" readonly style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ced4da; border-radius: 5px;">
+
+            <label style="color: #495057; font-weight: bold;">Contact:</label>
+            <input type="text" name="contact" value="{{ latest_booking.contact }}" readonly style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ced4da; border-radius: 5px;">
+
+            <label style="color: #495057; font-weight: bold;">Upload Receipt:</label>
+            <input type="file" name="receipt" id="receipt" required style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ced4da; border-radius: 5px;">
+
+            <button type="submit" style="background-color: #007BFF; color: white; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer; font-size: 1em; width: 100%;">Submit Payment</button>
+            <h3 style="color: brown;">PLEASE PUT YOUR RECEIPT ON THE SUGGESTION BOX AFTER UPLOADING HERE</h3>
+        </form>
+    </div>
+
+    <h2 style="text-align: center; color: #343a40; font-size: 2em; margin: 40px 0 20px;">Payments History</h2>
+    <table id="payment-table" style="width: 100%; max-width: 1000px; margin: 0 auto; border-collapse: collapse;">
+        <thead>
+            <tr>
+                <th style="padding: 10px; background: #007BFF; color: white; border: 1px solid #dee2e6;">Date Submitted</th>
+                <th style="padding: 10px; background: #007BFF; color: white; border: 1px solid #dee2e6;">Name</th>
+                <th style="padding: 10px; background: #007BFF; color: white; border: 1px solid #dee2e6;">Room No</th>
+                <th style="padding: 10px; background: #007BFF; color: white; border: 1px solid #dee2e6;">Contact</th>
+                <th style="padding: 10px; background: #007BFF; color: white; border: 1px solid #dee2e6;">Receipt</th>
+                <th style="padding: 10px; background: #007BFF; color: white; border: 1px solid #dee2e6;">Status</th>
+                <th style="padding: 10px; background: #007BFF; color: white; border: 1px solid #dee2e6;">Amount Received</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for record in records %}
+                <tr>
+                    <td style="padding: 10px; border: 1px solid #dee2e6; color: #495057;">{{ record.date_submitted }}</td>
+                    <td style="padding: 10px; border: 1px solid #dee2e6; color: #495057;">{{ record.name }}</td>
+                    <td style="padding: 10px; border: 1px solid #dee2e6; color: #495057;">{{ record.room_no }}</td>
+                    <td style="padding: 10px; border: 1px solid #dee2e6; color: #495057;">{{ record.contact }}</td>
+                    <td style="padding: 10px; border: 1px solid #dee2e6; color: #495057;">
+                        <a href="{{ record.receipt.url }}" target="_blank" style="color: #007BFF; text-decoration: none;">
+                            <img src="{{ record.receipt.url }}" alt="Receipt" style="width: 50px; height: auto; border-radius: 5px;">
+                        </a>
+                    </td>
+                    <td style="padding: 10px; border: 1px solid #dee2e6; color: #495057;">{{ record.status }}</td>
+                    <td style="padding: 10px; border: 1px solid #dee2e6; color: #495057;">{{ record.amount_received }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <script>
+        document.getElementById("payment-form").addEventListener("submit", function (event) {
+            event.preventDefault();  // Prevent normal form submission
+            
+            let formData = new FormData(this);
+
+            fetch("{% url 'submit_payment' %}", { // Adjust with your actual URL name
+                method: "POST",
+                body: formData,
+                headers: {
+                    "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]").value
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById("message").innerText = data.message;
+
+                    // Append new row to the table
+                    let table = document.getElementById("payment-table").getElementsByTagName('tbody')[0];
+                    let newRow = table.insertRow(0);
+
+                    newRow.innerHTML = `
+                        <td style="padding: 10px; border: 1px solid #dee2e6; color: #495057;">${data.record.date_submitted}</td>
+                        <td style="padding: 10px; border: 1px solid #dee2e6; color: #495057;">${data.record.name}</td>
+                        <td style="padding: 10px; border: 1px solid #dee2e6; color: #495057;">${data.record.room_no}</td>
+                        <td style="padding: 10px; border: 1px solid #dee2e6; color: #495057;">${data.record.contact}</td>
+                        <td style="padding: 10px; border: 1px solid #dee2e6; color: #495057;">
+                            <a href="${data.record.receipt_url}" target="_blank" style="color: #007BFF; text-decoration: none;">
+                                <img src="${data.record.receipt_url}" alt="Receipt" class="receipt-image" style="width:50px; height:50px; border-radius: 5px;">
+                            </a>
+                        </td>
+                        <td style="padding: 10px; border: 1px solid #dee2e6; color: #495057;">${data.record.status}</td>
+                        <td style="padding: 10px; border: 1px solid #dee2e6; color: #495057;">${data.record.amount_received}</td>
+                    `;
+
+                    // Clear form inputs after submission
+                    document.getElementById("receipt").value = "";
+                } else {
+                    document.getElementById("message").innerText = data.message + (data.errors ? ': ' + JSON.stringify(data.errors) : '');
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                document.getElementById("message").innerText = 'An error occurred. Please try again.';
+            });
+        });
+    </script>
+{% endblock %}

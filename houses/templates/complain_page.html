@@ -1,0 +1,164 @@
+{% extends 'base.html' %}
+
+{% block title %}Complain{% endblock %}
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+            background-color: #f8f9fa;
+            padding: 20px;
+        }
+
+        h1, h2 {
+            text-align: center;
+            color: #4CAF50;
+        }
+
+        form {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: 0 auto 30px;
+        }
+
+        form button {
+            background-color: #4CAF50;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        form button:hover {
+            background-color: #45a049;
+        }
+
+        .complaints-section {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .complaint {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .complaint h3 {
+            font-size: 20px;
+            color: #4CAF50;
+            margin-bottom: 10px;
+        }
+
+        .complaint small {
+            display: block;
+            font-size: 12px;
+            color: #777;
+            margin-bottom: 10px;
+        }
+
+        .complaint p {
+            font-size: 16px;
+            color: #555;
+        }
+
+        .complaint img, .complaint video {
+            margin-top: 10px;
+            max-width: 100%;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .response {
+            background-color: #f0f9f1;
+            border-left: 4px solid #4CAF50;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+        }
+
+        .response strong {
+            color: #4CAF50;
+        }
+
+        .response p {
+            font-size: 15px;
+            color: #333;
+        }
+
+        .response small {
+            font-size: 12px;
+            color: #777;
+        }
+
+        .no-complaints {
+            text-align: center;
+            font-style: italic;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <h1>Submit a Complaint</h1>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Submit Complaint</button>
+    </form>
+
+    <div class="complaints-section">
+        <h2>Complaints</h2>
+
+        {% if complaints %}
+            {% for complaint in complaints %}
+                <div class="complaint">
+                    <h3>{{ complaint.name }} (Room: {{ complaint.room_number }})</h3>
+                    <small>Submitted on {{ complaint.date_submitted|date:"M d, Y h:i A" }}</small>
+                    <p>{{ complaint.message }}</p>
+
+                    {% if complaint.image %}
+                        <p><strong>Image:</strong></p>
+                        <img src="{{ complaint.image.url }}" alt="Complaint Image">
+                    {% endif %}
+
+                    {% if complaint.video %}
+                        <p><strong>Video:</strong></p>
+                        <video controls>
+                            <source src="{{ complaint.video.url }}" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                    {% endif %}
+
+                    {% if complaint.response %}
+                        <div class="response">
+                            <strong>Admin Response:</strong>
+                            <p>{{ complaint.response }}</p>
+                            <small>Responded on {{ complaint.date_responded|date:"M d, Y h:i A" }}</small>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        {% else %}
+            <p class="no-complaints">No complaints have been submitted yet.</p>
+        {% endif %}
+    </div>
+</body>
+</html>
+{% endblock %}

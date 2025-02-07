@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block title %}Book House{% endblock %}
+
+{% block content %}
+<style>
+    .booking-container {
+        max-width: 500px;
+        margin: 0 auto;
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        text-align: center;
+    }
+
+    .booking-container img {
+        width: 100%;
+        height: auto;
+        border-radius: 10px;
+        margin-bottom: 20px;
+    }
+
+    .booking-container label {
+        font-weight: bold;
+        display: block;
+        margin-top: 10px;
+    }
+
+    .booking-container input {
+        width: 100%;
+        padding: 10px;
+        margin-top: 5px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+    }
+
+    .booking-container button {
+        background-color: #4CAF50;
+        color: white;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1em;
+        transition: background-color 0.3s ease;
+        margin-top: 15px;
+    }
+
+    .booking-container button:hover {
+        background-color: #45a049;
+    }
+</style>
+
+<div class="booking-container">
+    <h1>Book House</h1>
+    <img src="{{ house.image.url }}" alt="House Image">
+    <p><strong>{{ house.get_category_display }}</strong> - {{ house.description }}</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <label>Room Number:</label>
+        <input type="text" name="room_no" required>
+
+        <label>Contact:</label>
+        <input type="text" name="contact" required>
+
+        <button type="submit">Confirm Booking</button>
+    </form>
+</div>
+{% endblock %}
